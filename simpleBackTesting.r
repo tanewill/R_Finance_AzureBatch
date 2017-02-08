@@ -2,8 +2,8 @@ rm(list = ls(all = TRUE))
 #http://etfprophet.com/days-since-200-day-highs/
 
 require(quantmod)
-ticker <- getSymbols('^GSPC',from='1900-01-01')
-myDF <- GSPC
+ticker <- getSymbols('MSFT',from='2010-01-01')
+myDF <- MSFT
 
 daysSinceHigh <- function(x, n){
   apply(embed(x, n), 1, which.max)-1
@@ -46,3 +46,24 @@ Performance <- function(x) {
 
 results <- cbind(Me=Performance(myReturns),SP500=Performance(bmkReturns))
 print(results)
+
+testStrategy <- function(myStock, nHold=100, nHigh=200) {
+  myPosition <- myStrat(myStock,nHold,nHigh)
+  bmkReturns <- dailyReturn(myStock, type = "arithmetic")
+  myReturns <- bmkReturns*Lag(myPosition,1)
+  myReturns[1] <- 0
+  names(bmkReturns) <- 'Index'
+  names(myReturns) <- 'Me'
+  
+  charts.PerformanceSummary(cbind(bmkReturns,myReturns))
+  cbind(Me=Performance(myReturns),Index=Performance(bmkReturns))
+  
+}
+
+#getSymbols('^FTSE',from='1900-01-01')
+#getSymbols('DJIA', src='FRED')
+#getSymbols('^N225',from='1900-01-01')
+
+#testStrategy(Cl(FTSE),100,200)
+#testStrategy(na.omit(DJIA),100,200)
+#round(testStrategy(Cl(N225),100,200),8)
